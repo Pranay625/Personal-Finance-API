@@ -11,8 +11,8 @@ def create_transaction(
 ):
     new_transaction = Transaction(
         amount=transaction.amount,
-        type=transaction.type,
         category=transaction.category,
+        name=transaction.name,
         description=transaction.description
     )
 
@@ -56,8 +56,8 @@ def update_transaction(
         return None
 
     transaction.amount = updated_transaction.amount
-    transaction.type = updated_transaction.type
-    transaction.category = updated_transaction.category
+    transaction.category = updated_transaction.type
+    transaction.name=     updated_transaction.category
     transaction.description = updated_transaction.description
 
     db.commit()

@@ -7,6 +7,6 @@ class Transaction(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     amount = Column(Float)
-    type = Column(String(20))
-    category = Column(String(100))
+    category = Column(String(20))
+    name = Column(String(100))
     description = Column(String(255))

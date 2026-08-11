@@ -19,12 +19,15 @@ router = APIRouter(
 
 # ---------------- CREATE ---------------- #
 
-@router.post("/", response_model=TransactionResponse)
+@router.post("/", response_model=TransactionResponse, status_code = 201)
 def create_transaction(
     transaction: TransactionCreate,
     db: Session = Depends(get_db)
+
 ):
-    return crud.create_transaction(db, transaction)
+    return crud.create_transaction(
+        db, 
+        transaction)
 
 
 # ---------------- READ ALL ---------------- #
