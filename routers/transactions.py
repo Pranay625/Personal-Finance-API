@@ -34,9 +34,17 @@ def create_transaction(
 
 @router.get("/", response_model=list[TransactionResponse])
 def get_transactions(
+    category: str | None =None,
+    name: str | None = None,
+    min_amount: int | None = None,
     db: Session = Depends(get_db)
 ):
-    return crud.get_transactions(db)
+    return crud.get_transactions(
+        db,
+        category,
+        name,
+        min_amount
+    )
 
 
 # ---------------- READ ONE ---------------- #
@@ -82,7 +90,6 @@ def update_transaction(
             status_code=404,
             detail="Transaction not found"
         )
-
     return transaction
 
 

@@ -24,8 +24,24 @@ def create_transaction(
 
 
 # READ ALL
-def get_transactions(db: Session):
-    return db.query(Transaction).all()
+def get_transactions(
+    db,
+    category = None,
+    name = None,
+    min_amount = None
+):
+    query = db.query(Transaction)
+
+    if category: 
+        query = query.filter(Transaction.category == category)
+
+    if name: 
+        query = query.filter(Transaction.name == name)
+
+    if min_amount is not None:
+        query = query.filter(Transaction.amount >= min_amount)
+        
+    return query.all()
 
 
 # READ ONE
@@ -56,8 +72,8 @@ def update_transaction(
         return None
 
     transaction.amount = updated_transaction.amount
-    transaction.category = updated_transaction.type
-    transaction.name=     updated_transaction.category
+    transaction.category = updated_transaction.category
+    transaction.name=     updated_transaction.name
     transaction.description = updated_transaction.description
 
     db.commit()
