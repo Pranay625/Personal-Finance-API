@@ -37,13 +37,17 @@ def get_transactions(
     category: str | None =None,
     name: str | None = None,
     min_amount: int | None = None,
+    skip: int = 0,
+    limit: int = 10,
     db: Session = Depends(get_db)
 ):
     return crud.get_transactions(
         db,
         category,
         name,
-        min_amount
+        min_amount,
+        skip,
+        limit
     )
 
 
@@ -74,7 +78,7 @@ def get_transaction(
     "/{transaction_id}",
     response_model=TransactionResponse
 )
-def update_transaction(
+def update_full(
     transaction_id: int,
     updated_transaction: TransactionCreate,
     db: Session = Depends(get_db)
@@ -99,7 +103,7 @@ def update_transaction(
     "/{transaction_id}",
     response_model=TransactionResponse
 )
-def patch_transaction(
+def update_partial(
     transaction_id: int,
     updated_transaction: TransactionUpdate,
     db: Session = Depends(get_db)

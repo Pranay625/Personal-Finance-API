@@ -28,7 +28,9 @@ def get_transactions(
     db,
     category = None,
     name = None,
-    min_amount = None
+    min_amount = None,
+    skip = 0,
+    limit = 10
 ):
     query = db.query(Transaction)
 
@@ -41,7 +43,7 @@ def get_transactions(
     if min_amount is not None:
         query = query.filter(Transaction.amount >= min_amount)
         
-    return query.all()
+    return query.offset(skip).limit(limit).all()
 
 
 # READ ONE
@@ -57,7 +59,7 @@ def get_transaction(
 
 
 # UPDATE
-def update_transaction(
+def update_full(
     db: Session,
     transaction_id: int,
     updated_transaction: TransactionCreate
@@ -83,7 +85,7 @@ def update_transaction(
 
 
 # PATCH
-def patch_transaction(
+def update_partial(
     db: Session,
     transaction_id: int,
     updated_transaction: TransactionUpdate
