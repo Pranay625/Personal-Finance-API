@@ -9,9 +9,9 @@ class TransactionCreate(BaseModel):
 
 
 class TransactionUpdate(BaseModel):
-    amount: float | None = None
+    amount: float | None = Field(default = None, gt = 0)
     category: str | None = None
-    name: str | None = None
+    name: str | None = Field(default=None, min_length = 1)
     description: str | None = None
 
 

@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from models import Transaction
 from schemas import TransactionCreate, TransactionUpdate
-
+from enum import Enum
 
 # CREATE
 def create_transaction(
@@ -30,7 +30,8 @@ def get_transactions(
     name = None,
     min_amount = None,
     skip = 0,
-    limit = 10
+    limit = 10,
+    sort = None
 ):
     query = db.query(Transaction)
 
@@ -42,6 +43,12 @@ def get_transactions(
 
     if min_amount is not None:
         query = query.filter(Transaction.amount >= min_amount)
+
+    if sort == "amount":
+        query = query.order_by(Transaction.amount.asc())
+
+    elif sort == "-amount":
+        query = query.order_by(Transaction.amount.desc())
         
     return query.offset(skip).limit(limit).all()
 

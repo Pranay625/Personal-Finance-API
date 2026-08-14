@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
+from enum import Enum
 import crud
 
 from db import get_db
@@ -16,6 +16,13 @@ router = APIRouter(
     tags=["Transactions"]
 )
 
+class SortOrder(str, Enum):
+    LOW_TO_HIGH = "amount" 
+    HIGH_TO_LOW = "-amount"
+
+class Category(str, Enum):
+    INCOME = "income"
+    EXPENSE = "expense"
 
 # ---------------- CREATE ---------------- #
 
@@ -34,11 +41,12 @@ def create_transaction(
 
 @router.get("/", response_model=list[TransactionResponse])
 def get_transactions(
-    category: str | None =None,
+    category: Category | None =None,
     name: str | None = None,
     min_amount: int | None = None,
     skip: int = 0,
     limit: int = 10,
+    sort: SortOrder | None = None,
     db: Session = Depends(get_db)
 ):
     return crud.get_transactions(
@@ -47,7 +55,8 @@ def get_transactions(
         name,
         min_amount,
         skip,
-        limit
+        limit,
+        sort
     )
 
 
