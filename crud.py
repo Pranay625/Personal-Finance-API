@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from models import Transaction
-from schemas import TransactionCreate, TransactionUpdate
+from models import Transaction, User
+from schemas import TransactionCreate, TransactionUpdate, UserCreate
 from enum import Enum
 
 # CREATE
@@ -135,3 +135,19 @@ def delete_transaction(
     db.commit()
 
     return transaction
+
+# Create User
+def create_user(
+        db: Session,
+        user: UserCreate
+):
+    new_user = User(
+        username = user.username,
+        password = user.password
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user

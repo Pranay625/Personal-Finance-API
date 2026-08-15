@@ -1,6 +1,17 @@
 from pydantic import BaseModel, Field
 from typing import Literal
 
+class UserCreate(BaseModel):
+    username: str
+    password: str
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+
+    class Config:
+        from_attributes = True
+        
 class TransactionCreate(BaseModel):
     amount: float = Field(gt =0)
     category: Literal["income", "expense"]
