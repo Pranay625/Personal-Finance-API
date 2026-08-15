@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
-
 from models import Transaction, User
 from schemas import TransactionCreate, TransactionUpdate, UserCreate
 from enum import Enum
+
+import bcrypt
 
 # CREATE
 def create_transaction(
@@ -141,9 +142,15 @@ def create_user(
         db: Session,
         user: UserCreate
 ):
+
+    hashed_password = bcrypt.hashpw(
+        user.password.encode("utf-8"),
+        bcrypt.gensalt()
+    ).decode("utf-8")
+
     new_user = User(
         username = user.username,
-        password = user.password
+        password = hashed_password
     )
 
     db.add(new_user)
