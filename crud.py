@@ -158,3 +158,26 @@ def create_user(
     db.refresh(new_user)
 
     return new_user
+
+def authenticate_user(
+        db: Session,
+        username: str,
+        password: str
+):
+    user = (
+        db.query(User)
+        .filter(User.username == username)
+        .first()
+    )
+
+    if not user:
+        return None
+
+    if not bcrypt.checkpw(
+        password.encode("utf-8"),
+        user.password.encode("utf-8")
+    ):
+        return None
+
+    return user
+
