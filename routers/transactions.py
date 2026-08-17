@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from enum import Enum
 import crud
+from auth import get_current_user
 
 from db import get_db
 from schemas import (
@@ -47,7 +48,8 @@ def get_transactions(
     skip: int = 0,
     limit: int = 10,
     sort: SortOrder | None = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user)
 ):
     return crud.get_transactions(
         db,
