@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from auth import create_access_token
 import crud
 
 from db import get_db
@@ -50,6 +51,9 @@ def login(
             detail = "Invalid username or password."
         )
 
+    access_token = create_access_token({
+        "sub": authenticated_user.username
+    })
     return {
         "message": "Login successful",
         "username": authenticated_user.username
