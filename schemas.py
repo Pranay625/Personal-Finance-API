@@ -32,10 +32,10 @@ class TransactionUpdate(BaseModel):
 
 class TransactionResponse(BaseModel):
     id: int
+    user_id: int
     amount: float
     category: str
     name: str
     description: str | None
-
     class Config:
         from_attributes = True

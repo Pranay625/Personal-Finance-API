@@ -8,13 +8,15 @@ import bcrypt
 # CREATE
 def create_transaction(
     db: Session,
-    transaction: TransactionCreate
+    transaction: TransactionCreate,
+    user_id : int
 ):
     new_transaction = Transaction(
         amount=transaction.amount,
         category=transaction.category,
         name=transaction.name,
-        description=transaction.description
+        description=transaction.description,
+        user_id = user_id
     )
 
     db.add(new_transaction)
@@ -32,9 +34,10 @@ def get_transactions(
     min_amount = None,
     skip = 0,
     limit = 10,
-    sort = None
+    sort = None,
+    user_id = id
 ):
-    query = db.query(Transaction)
+    query = db.query(Transaction).filter(Transaction.user_id == user_id)
 
     if category: 
         query = query.filter(Transaction.category == category)
@@ -57,11 +60,12 @@ def get_transactions(
 # READ ONE
 def get_transaction(
     db: Session,
-    transaction_id: int
+    transaction_id: int,
+    user_id: int
 ):
     return (
         db.query(Transaction)
-        .filter(Transaction.id == transaction_id)
+        .filter(Transaction.id == transaction_id, Transaction.user_id == user_id)
         .first()
     )
 
@@ -70,11 +74,12 @@ def get_transaction(
 def update_full(
     db: Session,
     transaction_id: int,
-    updated_transaction: TransactionCreate
+    updated_transaction: TransactionCreate,
+    user_id: int
 ):
     transaction = (
         db.query(Transaction)
-        .filter(Transaction.id == transaction_id)
+        .filter(Transaction.id == transaction_id, Transaction.user_id == user_id)
         .first()
     )
 
@@ -96,11 +101,12 @@ def update_full(
 def update_partial(
     db: Session,
     transaction_id: int,
-    updated_transaction: TransactionUpdate
+    updated_transaction: TransactionUpdate,
+    user_id: int
 ):
     transaction = (
         db.query(Transaction)
-        .filter(Transaction.id == transaction_id)
+        .filter(Transaction.id == transaction_id, Transaction.user_id == user_id)
         .first()
     )
 
@@ -121,11 +127,12 @@ def update_partial(
 # DELETE
 def delete_transaction(
     db: Session,
-    transaction_id: int
+    transaction_id: int,
+    user_id: int
 ):
     transaction = (
         db.query(Transaction)
-        .filter(Transaction.id == transaction_id)
+        .filter(Transaction.id == transaction_id, Transaction.user_id == user_id)
         .first()
     )
 
