@@ -1,4 +1,4 @@
-A beginner-friendly Personal Finance REST API built with FastAPI, SQLAlchemy, and MySQL
+A beginner-friendly Personal Finance REST API built with FastAPI, SQLAlchemy, and MySQL.
 
 TECH STACK:
 
