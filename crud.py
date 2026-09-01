@@ -1,22 +1,24 @@
 from sqlalchemy.orm import Session
 from models import Transaction, User
 from schemas import TransactionCreate, TransactionUpdate, UserCreate
-from enum import Enum
 
 import bcrypt
+
 
 # CREATE
 def create_transaction(
     db: Session,
     transaction: TransactionCreate,
-    user_id : int
+    user_id: int
 ):
     new_transaction = Transaction(
         amount=transaction.amount,
-        category=transaction.category,
+        type=transaction.type,
+        category_id=transaction.category_id,
         name=transaction.name,
         description=transaction.description,
-        user_id = user_id
+        transaction_date=transaction.transaction_date,
+        user_id=user_id
     )
 
     db.add(new_transaction)
@@ -28,32 +30,50 @@ def create_transaction(
 
 # READ ALL
 def get_transactions(
-    db,
-    category = None,
-    name = None,
-    min_amount = None,
-    skip = 0,
-    limit = 10,
-    sort = None,
-    user_id = id
+    db: Session,
+    user_id: int,
+    category_id: int | None = None,
+    transaction_type: str | None = None,
+    name: str | None = None,
+    min_amount: float | None = None,
+    skip: int = 0,
+    limit: int = 10,
+    sort: str | None = None
 ):
-    query = db.query(Transaction).filter(Transaction.user_id == user_id)
+    query = db.query(Transaction).filter(
+        Transaction.user_id == user_id
+    )
 
-    if category: 
-        query = query.filter(Transaction.category == category)
+    if category_id is not None:
+        query = query.filter(
+            Transaction.category_id == category_id
+        )
 
-    if name: 
-        query = query.filter(Transaction.name == name)
+    if transaction_type:
+        query = query.filter(
+            Transaction.type == transaction_type
+        )
+
+    if name:
+        query = query.filter(
+            Transaction.name == name
+        )
 
     if min_amount is not None:
-        query = query.filter(Transaction.amount >= min_amount)
+        query = query.filter(
+            Transaction.amount >= min_amount
+        )
 
     if sort == "amount":
-        query = query.order_by(Transaction.amount.asc())
+        query = query.order_by(
+            Transaction.amount.asc()
+        )
 
     elif sort == "-amount":
-        query = query.order_by(Transaction.amount.desc())
-        
+        query = query.order_by(
+            Transaction.amount.desc()
+        )
+
     return query.offset(skip).limit(limit).all()
 
 
@@ -65,7 +85,10 @@ def get_transaction(
 ):
     return (
         db.query(Transaction)
-        .filter(Transaction.id == transaction_id, Transaction.user_id == user_id)
+        .filter(
+            Transaction.id == transaction_id,
+            Transaction.user_id == user_id
+        )
         .first()
     )
 
@@ -79,7 +102,10 @@ def update_full(
 ):
     transaction = (
         db.query(Transaction)
-        .filter(Transaction.id == transaction_id, Transaction.user_id == user_id)
+        .filter(
+            Transaction.id == transaction_id,
+            Transaction.user_id == user_id
+        )
         .first()
     )
 
@@ -87,9 +113,11 @@ def update_full(
         return None
 
     transaction.amount = updated_transaction.amount
-    transaction.category = updated_transaction.category
-    transaction.name=     updated_transaction.name
+    transaction.type = updated_transaction.type
+    transaction.category_id = updated_transaction.category_id
+    transaction.name = updated_transaction.name
     transaction.description = updated_transaction.description
+    transaction.transaction_date = updated_transaction.transaction_date
 
     db.commit()
     db.refresh(transaction)
@@ -106,14 +134,19 @@ def update_partial(
 ):
     transaction = (
         db.query(Transaction)
-        .filter(Transaction.id == transaction_id, Transaction.user_id == user_id)
+        .filter(
+            Transaction.id == transaction_id,
+            Transaction.user_id == user_id
+        )
         .first()
     )
 
     if not transaction:
         return None
 
-    data = updated_transaction.model_dump(exclude_unset=True)
+    data = updated_transaction.model_dump(
+        exclude_unset=True
+    )
 
     for key, value in data.items():
         setattr(transaction, key, value)
@@ -132,7 +165,10 @@ def delete_transaction(
 ):
     transaction = (
         db.query(Transaction)
-        .filter(Transaction.id == transaction_id, Transaction.user_id == user_id)
+        .filter(
+            Transaction.id == transaction_id,
+            Transaction.user_id == user_id
+        )
         .first()
     )
 
@@ -143,48 +179,3 @@ def delete_transaction(
     db.commit()
 
     return transaction
-
-# Create User
-def create_user(
-        db: Session,
-        user: UserCreate
-):
-
-    hashed_password = bcrypt.hashpw(
-        user.password.encode("utf-8"),
-        bcrypt.gensalt()
-    ).decode("utf-8")
-
-    new_user = User(
-        username = user.username,
-        password = hashed_password
-    )
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return new_user
-
-def authenticate_user(
-        db: Session,
-        username: str,
-        password: str
-):
-    user = (
-        db.query(User)
-        .filter(User.username == username)
-        .first()
-    )
-
-    if not user:
-        return None
-
-    if not bcrypt.checkpw(
-        password.encode("utf-8"),
-        user.password.encode("utf-8")
-    ):
-        return None
-
-    return user
-

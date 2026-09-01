@@ -1,26 +1,28 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+
 from auth import create_access_token
 import crud
 
 from db import get_db
 from schemas import UserCreate, UserResponse, UserLogin
 
+
 router = APIRouter(
-    prefix = "/users",
-    tags = ["Users"]
+    prefix="/users",
+    tags=["Users"]
 )
+
 
 @router.post(
     "/",
-    response_model = UserResponse,
-    status_code = 201
+    response_model=UserResponse,
+    status_code=201
 )
 def create_user(
     user: UserCreate,
     db: Session = Depends(get_db)
-
 ):
     try:
         return crud.create_user(db, user)
@@ -29,16 +31,16 @@ def create_user(
         db.rollback()
 
         raise HTTPException(
-            status_code = 409,
-            detail = "Username already exists."
+            status_code=409,
+            detail="Username already exists."
         )
+
 
 @router.post("/login")
 def login(
     user: UserLogin,
     db: Session = Depends(get_db)
 ):
-
     authenticated_user = crud.authenticate_user(
         db,
         user.username,
@@ -47,14 +49,17 @@ def login(
 
     if not authenticated_user:
         raise HTTPException(
-            status_code = 401,
-            detail = "Invalid username or password."
+            status_code=401,
+            detail="Invalid username or password."
         )
 
     access_token = create_access_token({
         "sub": authenticated_user.username
     })
+
     return {
         "message": "Login successful",
-        "username": authenticated_user.username
+        "username": authenticated_user.username,
+        "access_token": access_token,
+        "token_type": "bearer"
     }
