@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from enum import Enum
@@ -55,6 +57,9 @@ def get_transactions(
     transaction_type: str | None = None,
     name: str | None = None,
     min_amount: float | None = None,
+    max_amount: float | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
     skip: int = 0,
     limit: int = 10,
     sort: SortOrder | None = None,
@@ -68,6 +73,9 @@ def get_transactions(
         transaction_type=transaction_type,
         name=name,
         min_amount=min_amount,
+        max_amount=max_amount,
+        start_date=start_date,
+        end_date=end_date,
         skip=skip,
         limit=limit,
         sort=sort

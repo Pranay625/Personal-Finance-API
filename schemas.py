@@ -52,3 +52,9 @@ class TransactionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class FinanceSummary(BaseModel):
+    total_income: Decimal
+    total_expenses: Decimal
+    balance: Decimal

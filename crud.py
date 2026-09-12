@@ -36,6 +36,9 @@ def get_transactions(
     transaction_type: str | None = None,
     name: str | None = None,
     min_amount: float | None = None,
+    max_amount: float | None = None,
+    start_date=None,
+    end_date=None,
     skip: int = 0,
     limit: int = 10,
     sort: str | None = None
@@ -62,6 +65,21 @@ def get_transactions(
     if min_amount is not None:
         query = query.filter(
             Transaction.amount >= min_amount
+        )
+
+    if max_amount is not None:
+        query = query.filter(
+            Transaction.amount <= max_amount
+        )
+
+    if start_date is not None:
+        query = query.filter(
+            Transaction.transaction_date >= start_date
+        )
+
+    if end_date is not None:
+        query = query.filter(
+            Transaction.transaction_date <= end_date
         )
 
     if sort == "amount":
