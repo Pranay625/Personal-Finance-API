@@ -1,11 +1,10 @@
 from sqlalchemy.orm import Session
-from models import Transaction, User
-from schemas import TransactionCreate, TransactionUpdate, UserCreate
-
-import bcrypt
+from models import Transaction
+from schemas import TransactionCreate, TransactionUpdate
 
 
-# CREATE
+# ---------------- CREATE ---------------- #
+
 def create_transaction(
     db: Session,
     transaction: TransactionCreate,
@@ -21,14 +20,20 @@ def create_transaction(
         user_id=user_id
     )
 
-    db.add(new_transaction)
-    db.commit()
-    db.refresh(new_transaction)
+    try:
+        db.add(new_transaction)
+        db.commit()
+        db.refresh(new_transaction)
+
+    except Exception:
+        db.rollback()
+        raise
 
     return new_transaction
 
 
-# READ ALL
+# ---------------- READ ALL ---------------- #
+
 def get_transactions(
     db: Session,
     user_id: int,
@@ -95,7 +100,8 @@ def get_transactions(
     return query.offset(skip).limit(limit).all()
 
 
-# READ ONE
+# ---------------- READ ONE ---------------- #
+
 def get_transaction(
     db: Session,
     transaction_id: int,
@@ -111,7 +117,8 @@ def get_transaction(
     )
 
 
-# UPDATE
+# ---------------- UPDATE ---------------- #
+
 def update_full(
     db: Session,
     transaction_id: int,
@@ -137,13 +144,19 @@ def update_full(
     transaction.description = updated_transaction.description
     transaction.transaction_date = updated_transaction.transaction_date
 
-    db.commit()
-    db.refresh(transaction)
+    try:
+        db.commit()
+        db.refresh(transaction)
+
+    except Exception:
+        db.rollback()
+        raise
 
     return transaction
 
 
-# PATCH
+# ---------------- PATCH ---------------- #
+
 def update_partial(
     db: Session,
     transaction_id: int,
@@ -169,13 +182,19 @@ def update_partial(
     for key, value in data.items():
         setattr(transaction, key, value)
 
-    db.commit()
-    db.refresh(transaction)
+    try:
+        db.commit()
+        db.refresh(transaction)
+
+    except Exception:
+        db.rollback()
+        raise
 
     return transaction
 
 
-# DELETE
+# ---------------- DELETE ---------------- #
+
 def delete_transaction(
     db: Session,
     transaction_id: int,
@@ -193,7 +212,12 @@ def delete_transaction(
     if not transaction:
         return None
 
-    db.delete(transaction)
-    db.commit()
+    try:
+        db.delete(transaction)
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        raise
 
     return transaction

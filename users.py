@@ -25,7 +25,10 @@ def create_user(
     db: Session = Depends(get_db)
 ):
     try:
-        return crud.create_user(db, user)
+        return crud.create_user(
+            db,
+            user
+        )
 
     except IntegrityError:
         db.rollback()
@@ -36,7 +39,9 @@ def create_user(
         )
 
 
-@router.post("/login")
+@router.post(
+    "/login"
+)
 def login(
     user: UserLogin,
     db: Session = Depends(get_db)

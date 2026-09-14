@@ -1,3 +1,5 @@
+import os
+
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt, JWTError
@@ -5,12 +7,25 @@ from fastapi import HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
+from dotenv import load_dotenv
+
 from db import get_db
 from models import User
 
 
-SECRET_KEY = "Gaara"
+load_dotenv()
+
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY is not configured."
+    )
+
+
 ALGORITHM = "HS256"
+
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
@@ -68,9 +83,13 @@ def get_current_user(
 ):
     username = verify_token(token)
 
-    user = db.query(User).filter(
-        User.username == username
-    ).first()
+    user = (
+        db.query(User)
+        .filter(
+            User.username == username
+        )
+        .first()
+    )
 
     if user is None:
         raise HTTPException(

@@ -1,6 +1,6 @@
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from enum import Enum
 
@@ -53,19 +53,68 @@ def create_transaction(
     response_model=list[TransactionResponse]
 )
 def get_transactions(
-    category_id: int | None = None,
+    category_id: int | None = Query(
+        default=None,
+        gt=0
+    ),
+
     transaction_type: str | None = None,
+
     name: str | None = None,
-    min_amount: float | None = None,
-    max_amount: float | None = None,
+
+    min_amount: float | None = Query(
+        default=None,
+        ge=0
+    ),
+
+    max_amount: float | None = Query(
+        default=None,
+        ge=0
+    ),
+
     start_date: date | None = None,
+
     end_date: date | None = None,
-    skip: int = 0,
-    limit: int = 10,
+
+    skip: int = Query(
+        default=0,
+        ge=0
+    ),
+
+    limit: int = Query(
+        default=10,
+        ge=1,
+        le=100
+    ),
+
     sort: SortOrder | None = None,
+
     db: Session = Depends(get_db),
+
     current_user: User = Depends(get_current_user)
 ):
+    # Validate date range
+    if (
+        start_date is not None
+        and end_date is not None
+        and start_date > end_date
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="start_date cannot be later than end_date"
+        )
+
+    # Validate amount range
+    if (
+        min_amount is not None
+        and max_amount is not None
+        and min_amount > max_amount
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="min_amount cannot be greater than max_amount"
+        )
+
     return crud.get_transactions(
         db=db,
         user_id=current_user.id,

@@ -5,13 +5,27 @@ from decimal import Decimal
 
 
 class UserCreate(BaseModel):
-    username: str
-    password: str
+    username: str = Field(
+        min_length=3,
+        max_length=50
+    )
+
+    password: str = Field(
+        min_length=6,
+        max_length=255
+    )
 
 
 class UserLogin(BaseModel):
-    username: str
-    password: str
+    username: str = Field(
+        min_length=3,
+        max_length=50
+    )
+
+    password: str = Field(
+        min_length=1,
+        max_length=255
+    )
 
 
 class UserResponse(BaseModel):
@@ -23,20 +37,59 @@ class UserResponse(BaseModel):
 
 
 class TransactionCreate(BaseModel):
-    amount: Decimal = Field(gt=0)
-    type: Literal["income", "expense"]
-    category_id: int = Field(gt=0)
-    name: str = Field(min_length=1, max_length=100)
-    description: str | None = Field(default=None, max_length=255)
+    amount: Decimal = Field(
+        gt=0
+    )
+
+    type: Literal[
+        "income",
+        "expense"
+    ]
+
+    category_id: int = Field(
+        gt=0
+    )
+
+    name: str = Field(
+        min_length=1,
+        max_length=100
+    )
+
+    description: str | None = Field(
+        default=None,
+        max_length=255
+    )
+
     transaction_date: date
 
 
 class TransactionUpdate(BaseModel):
-    amount: Decimal | None = Field(default=None, gt=0)
-    type: Literal["income", "expense"] | None = None
-    category_id: int | None = Field(default=None, gt=0)
-    name: str | None = Field(default=None, min_length=1, max_length=100)
-    description: str | None = Field(default=None, max_length=255)
+    amount: Decimal | None = Field(
+        default=None,
+        gt=0
+    )
+
+    type: Literal[
+        "income",
+        "expense"
+    ] | None = None
+
+    category_id: int | None = Field(
+        default=None,
+        gt=0
+    )
+
+    name: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=100
+    )
+
+    description: str | None = Field(
+        default=None,
+        max_length=255
+    )
+
     transaction_date: date | None = None
 
 

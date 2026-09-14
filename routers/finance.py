@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func, case
 
@@ -27,6 +27,16 @@ def get_finance_summary(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    if (
+        start_date is not None
+        and end_date is not None
+        and start_date > end_date
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="start_date cannot be later than end_date"
+        )
+
     query = db.query(
         func.coalesce(
             func.sum(
