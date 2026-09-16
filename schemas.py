@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Literal
 from datetime import date
 from decimal import Decimal
@@ -32,8 +32,7 @@ class UserResponse(BaseModel):
     id: int
     username: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TransactionCreate(BaseModel):
@@ -103,8 +102,7 @@ class TransactionResponse(BaseModel):
     description: str | None
     transaction_date: date
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class FinanceSummary(BaseModel):

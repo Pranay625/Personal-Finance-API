@@ -8,7 +8,7 @@ import crud
 
 from auth import get_current_user
 from db import get_db
-from models import User
+from models import User, Category
 from schemas import (
     TransactionCreate,
     TransactionUpdate,
@@ -39,6 +39,16 @@ def create_transaction(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    category = db.query(Category).filter(
+        Category.id == transaction.category_id
+    ).first()
+
+    if not category:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Category with id {transaction.category_id} not found"
+        )
+
     return crud.create_transaction(
         db,
         transaction,
@@ -169,6 +179,16 @@ def update_full(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    category = db.query(Category).filter(
+        Category.id == updated_transaction.category_id
+    ).first()
+
+    if not category:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Category with id {updated_transaction.category_id} not found"
+        )
+
     transaction = crud.update_full(
         db,
         transaction_id,
@@ -197,6 +217,17 @@ def update_partial(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    if updated_transaction.category_id is not None:
+        category = db.query(Category).filter(
+            Category.id == updated_transaction.category_id
+        ).first()
+
+        if not category:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Category with id {updated_transaction.category_id} not found"
+            )
+
     transaction = crud.update_partial(
         db,
         transaction_id,

@@ -65,7 +65,8 @@ def verify_token(token: str):
         if username is None:
             raise HTTPException(
                 status_code=401,
-                detail="Invalid token"
+                detail="Invalid token",
+                headers={"WWW-Authenticate": "Bearer"}
             )
 
         return username
@@ -73,7 +74,8 @@ def verify_token(token: str):
     except JWTError:
         raise HTTPException(
             status_code=401,
-            detail="Invalid or expired token"
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"}
         )
 
 
@@ -94,7 +96,8 @@ def get_current_user(
     if user is None:
         raise HTTPException(
             status_code=401,
-            detail="User not found"
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"}
         )
 
     return user

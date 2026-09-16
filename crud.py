@@ -1,6 +1,7 @@
+import bcrypt
 from sqlalchemy.orm import Session
-from models import Transaction
-from schemas import TransactionCreate, TransactionUpdate
+from models import Transaction, User
+from schemas import TransactionCreate, TransactionUpdate, UserCreate
 
 
 # ---------------- CREATE ---------------- #
@@ -221,3 +222,81 @@ def delete_transaction(
         raise
 
     return transaction
+
+
+# ---------------- USERS ---------------- #
+
+def create_user(
+    db: Session,
+    user: UserCreate
+):
+    hashed_password = bcrypt.hashpw(
+        user.password.encode("utf-8"),
+        bcrypt.gensalt()
+    ).decode("utf-8")
+
+    new_user = User(
+        username=user.username,
+        password=hashed_password
+    )
+
+    try:
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+
+    except Exception:
+        db.rollback()
+        raise
+
+    return new_user
+
+
+def authenticate_user(
+    db: Session,
+    username: str,
+    password: str
+):
+    user = (
+        db.query(User)
+        .filter(User.username == username)
+        .first()
+    )
+
+    if not user:
+        return None
+
+    try:
+        if bcrypt.checkpw(
+            password.encode("utf-8"),
+            user.password.encode("utf-8")
+        ):
+            return user
+    except Exception:
+        # Fallback for legacy plaintext passwords stored during early development
+        if user.password == password:
+            try:
+                user.password = bcrypt.hashpw(
+                    password.encode("utf-8"),
+                    bcrypt.gensalt()
+                ).decode("utf-8")
+                db.commit()
+                db.refresh(user)
+            except Exception:
+                db.rollback()
+            return user
+        return None
+
+    if user.password == password:
+        try:
+            user.password = bcrypt.hashpw(
+                password.encode("utf-8"),
+                bcrypt.gensalt()
+            ).decode("utf-8")
+            db.commit()
+            db.refresh(user)
+        except Exception:
+            db.rollback()
+        return user
+
+    return None

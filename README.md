@@ -19,11 +19,20 @@ Create and activate the virtual environment:
 python -m venv venv
 venv\Scripts\activate
 
-Install everything used so far:
+Install dependencies:
 
-pip install fastapi uvicorn sqlalchemy pymysql bcrypt
+pip install -r requirements.txt
+
+Configure environment variables:
+Create a `.env` file (see `.env.example`):
+- DATABASE_URL: MySQL connection string
+- SECRET_KEY: JWT secret key
 
 MySQL is installed separately and must be running.
+
+Run database migrations:
+
+alembic upgrade head
 
 RUN:
 
@@ -39,16 +48,27 @@ http://127.0.0.1:8000/docs
 
 ReDOC:
 
-http://127.0.0.1.8000/redoc
+http://127.0.0.1:8000/redoc
 
 Project Structure
 
 fastapi/
-├── main.py
-├── db.py
-├── models.py
-├── schemas.py
-├── crud.py
-├── transactions.py
-├── users.py
-└── venv/
+├── alembic/              # Alembic database migration scripts
+│   ├── versions/
+│   └── env.py
+├── routers/              # API sub-routers
+│   ├── __init__.py
+│   ├── finance.py        # Financial summaries and balance
+│   └── transactions.py   # Transaction CRUD endpoints
+├── __init__.py
+├── alembic.ini           # Alembic configuration
+├── auth.py               # JWT creation, verification, and get_current_user
+├── crud.py               # Database CRUD operations (Users & Transactions)
+├── db.py                 # SQLAlchemy engine and session setup
+├── main.py               # FastAPI application entry point
+├── models.py             # SQLAlchemy database models
+├── schemas.py            # Pydantic request & response schemas
+├── users.py              # User registration and authentication router
+├── requirements.txt      # Python dependencies
+├── .env.example          # Environment variable template
+└── .gitignore            # Git ignore rules
